@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bryan’s Daily Planner</title>
+<style>
+:root{--h:265;--bg:hsl(var(--h),45%,6%);--card:hsl(var(--h),34%,11%);--c2:hsl(var(--h),30%,17%);--ac:hsl(var(--h),92%,68%);--ac2:hsl(var(--h),80%,40%);--tx:#f3efff;--mu:hsl(var(--h),14%,70%);--bd:hsl(var(--h),40%,24%);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(900px 500px at 80% -10%,hsl(var(--h),70%,18%),transparent),var(--bg);color:var(--tx);font:16px/1.45 "Space Grotesk","Segoe UI",system-ui,sans-serif;min-height:100vh}
+.w{max-width:760px;margin:0 auto;padding:14px 14px 110px}
+header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:space-between;margin-bottom:12px}
+h1{font-size:1.5rem;margin:0;letter-spacing:.02em}
+h1 span{color:var(--ac)}
+h3{margin:0 0 10px;font-size:1.05rem}
+.tools{display:flex;gap:8px;align-items:center}
+.sw{width:22px;height:22px;border-radius:50%;border:2px solid var(--bd);padding:0;cursor:pointer}
+input[type=color]{width:34px;height:30px;border:0;background:none;padding:0}
+.card{background:linear-gradient(160deg,var(--card),var(--bg));border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 0 24px -12px var(--ac)}
+.mu{color:var(--mu);font-size:.9rem;margin:6px 0}
+input,select,textarea{background:var(--c2);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font:inherit;min-width:0;max-width:100%}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+textarea{width:100%;margin-top:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.grow{flex:1 1 140px}
+.b{background:var(--ac);color:#12071f;border:0;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer}
+.b.g{background:var(--c2);color:var(--tx);border:1px solid var(--bd)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px}
+.chip{background:var(--c2);color:var(--mu);border:1px solid var(--bd);border-radius:20px;padding:7px 13px;font:inherit;cursor:pointer;flex:none}
+.chip.on{background:var(--ac);color:#12071f;font-weight:700}
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bd)}
+.item b{color:var(--ac);min-width:52px}
+.item span{flex:1;overflow-wrap:anywhere}
+.ic{background:none;border:1px solid var(--bd);color:var(--mu);border-radius:8px;width:34px;height:34px;cursor:pointer}
+.ic.on{border-color:var(--ac);color:var(--ac)}
+.bar{height:10px;background:var(--c2);border-radius:6px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ac2),var(--ac));border-radius:6px}
+.big{font-size:1.9rem;font-weight:700;color:var(--ac)}
+.tr{padding:6px 0 4px}.lf{margin-left:16px;padding-left:10px;border-left:2px solid var(--bd);font-size:.92rem}
+canvas{width:100%;height:180px;display:block}
+summary{cursor:pointer;font-weight:700}
+nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(6,1fr);background:hsl(var(--h),40%,8%);border-top:1px solid var(--bd);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav button{background:none;border:0;color:var(--mu);font:inherit;font-size:.72rem;padding:4px 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button i{font-style:normal;font-size:1.2rem}
+nav button.on{color:var(--ac)}
+.q{text-align:center;font-style:italic;color:var(--mu);padding:14px 8px;margin-top:6px}
+.q b{display:block;color:var(--tx);font-style:normal;font-size:1.02rem;margin-bottom:4px}
+#toast{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:9;display:grid;gap:8px}
+.t{background:var(--ac);color:#12071f;padding:12px 14px;border-radius:12px;font-weight:700;display:flex;justify-content:space-between;gap:10px;box-shadow:0 8px 30px #000a}
+.t button{background:#12071f;color:#fff;border:0;border-radius:8px;padding:4px 10px;font:inherit}
+#arena{position:relative;height:260px;background:var(--c2);border:1px solid var(--bd);border-radius:14px;overflow:hidden;touch-action:manipulation}
+#orb{position:absolute;width:50px;height:50px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#fff,var(--ac) 45%,var(--ac2));box-shadow:0 0 22px var(--ac);cursor:pointer}
+@media (prefers-reduced-motion:no-preference){.card{transition:box-shadow .3s}}
+</style></head><body>
+<div id="toast"></div>
+<div class="w">
+<header><h1>Bryan’s <span>Daily Planner</span></h1>
+<div class="tools" id="tools"></div></header>
+<div id="v"></div>
+<div class="card q" id="q"></div>
+</div>
+<nav id="nav"></nav>
+<script>
+const $=s=>document.querySelector(s),D=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],K='nova_planner_v2';
+let S={hue:265,tt:{},al:[],nu:[],ex:[],bud:35000,sv:{goal:'My savings goal',target:50000,dep:[]},hi:0},tab='plan',day=0,showData=false,resetArm=false,gi=null,gs=0,gt=0;
+try{const r=localStorage.getItem(K);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+D.forEach(d=>S.tt[d]=S.tt[d]||[]);
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const todayI=()=>(new Date().getDay()+6)%7;
+const ymd=d=>{d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const hm=()=>{const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+const N=n=>'₦'+Math.round(n).toLocaleString();
+const val=id=>($('#'+id)||{}).value||'';
+day=todayI();
+
+/* theme */
+const PRE=[265,330,210,150,25,0,185];
+function theme(){document.documentElement.style.setProperty('--h',S.hue);$('#tools').innerHTML=PRE.map(h=>`<button class="sw" aria-label="Theme colour" style="background:hsl(${h},90%,62%)" onclick="setH(${h})"></button>`).join('')+'<input type="color" aria-label="Pick any colour" value="'+hsl2hex(S.hue)+'" oninput="hexH(this.value)"><button class="ic" aria-label="Data and backup" onclick="showData=!showData;render()">💾</button>'}
+function setH(h){S.hue=h;save();theme();if(tab==='charts')drawCharts()}
+function hexH(x){const r=parseInt(x.slice(1,3),16)/255,g=parseInt(x.slice(3,5),16)/255,b=parseInt(x.slice(5,7),16)/255,m=Math.max(r,g,b),n=Math.min(r,g,b),d=m-n;if(!d)return;let h=m===r?((g-b)/d)%6:m===g?(b-r)/d+2:(r-g)/d+4;setH(Math.round((h*60+360)%360))}
+function hsl2hex(h){const a=.92*Math.min(.68,1-.68),f=n=>{const k=(n+h/30)%12;return Math.round(255*(.68-a*Math.max(-1,Math.min(k-3,9-k,1))))};return '#'+[f(0),f(8),f(4)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+
+/* alarms */
+let ac;const wake=()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}};
+document.addEventListener('pointerdown',wake,{once:true});
+function beep(){try{wake();[0,.25,.5].forEach(o=>{const s=ac.createOscillator(),g=ac.createGain();s.connect(g);g.connect(ac.destination);s.frequency.value=880;g.gain.value=.15;s.start(ac.currentTime+o);s.stop(ac.currentTime+o+.15)})}catch(e){}}
+function toast(m,loud){const e=document.createElement('div');e.className='t';e.innerHTML='<span>'+esc(m)+'</span><button>OK</button>';e.querySelector('button').onclick=()=>e.remove();$('#toast').appendChild(e);if(!loud)setTimeout(()=>e.remove(),3000)}
+function fire(m){toast(m,1);beep();try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}try{if(window.Notification&&Notification.permission==='granted')new Notification('Bryan’s Daily Planner',{body:m})}catch(e){}}
+function tick(){const n=hm(),t=ymd();let ch=0;
+S.al.forEach(a=>{if(a.t===n&&a.l!==t){a.l=t;ch=1;fire('⏰ '+a.n)}});
+S.tt[D[todayI()]].forEach(i=>{if(i.r&&i.t===n&&i.l!==t){i.l=t;ch=1;fire('📚 '+i.n+' starts now')}});
+S.nu.forEach(u=>{if(Date.now()>=u.nx){u.nx=Date.now()+u.m*6e4;ch=1;fire('Get going with: '+u.n+'. Start now, even for 5 minutes.')}});
+if(ch)save();quote()}
+setInterval(tick,1000);
+
+/* quotes */
+const Q=['Small steps done daily beat big plans done never.','Start before you feel ready. Readiness follows action.','Your future self is watching what you do today.','Discipline is choosing what you want most over what you want now.','Five focused minutes can break any stuck feeling.','Progress is quiet. Keep showing up.','Do the hard thing first; the day gets lighter.','You don’t need more time, you need a first step.','Rest if you must, but don’t quit the plan.','Consistency turns ordinary effort into extraordinary results.','One finished task is worth ten perfect intentions.','Make today’s version of you proud.','Every expert once struggled with the basics.','Focus on the next hour, not the whole semester.','A messy start beats a perfect delay.','Protect your time like it is your money.','Hard days build the strongest habits.','Your goals are closer than your excuses.','Energy follows momentum. Move first.','Finish what you started; it builds trust in yourself.'];
+let qd='';
+function quote(){const t=ymd();if(t===qd)return;qd=t;const i=Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5)%Q.length;$('#q').innerHTML='<b>'+Q[i]+'</b>Quote of the day · refreshes every 24 hours'}
+
+/* views */
+function plan(){const it=[...S.tt[D[day]]].sort((a,b)=>a.t.localeCompare(b.t));
+return `<div class="chips">${D.map((d,i)=>`<button class="chip ${i===day?'on':''}" onclick="day=${i};render()">${d}${i===todayI()?' •':''}</button>`).join('')}</div>
+<div class="card"><h3>${D[day]} schedule</h3>${it.length?it.map(i=>`<div class="item"><b>${i.t}</b><span>${esc(i.n)}</span><button class="ic ${i.r?'on':''}" aria-label="Toggle reminder" onclick="rem('${i.id}')">🔔</button><button class="ic" aria-label="Delete" onclick="del('${i.id}')">✕</button></div>`).join(''):'<p class="mu">Nothing planned. Add your first activity below.</p>'}
+<div class="row"><input id="pt" type="time" value="09:00"><input id="pn" class="grow" placeholder="What are you doing?"><button class="b" onclick="addI()">Add</button></div></div>
+<div class="card"><h3>Upload your timetable</h3><p class="mu">Take a photo or screenshot of your timetable. The planner reads it on its own and spreads every class across the right days, with reminders.</p><input type="file" accept="image/*" onchange="readTT(this)"><p class="mu" id="ts"></p><p class="mu">Have a spreadsheet instead? Upload a CSV or text file with lines like <b>MTH 101, Mon, 08:00</b>.</p><input type="file" accept=".csv,.txt,text/csv,text/plain" onchange="upl(this)">
+<p class="mu">Or spread one course over several days at once:</p>
+<div class="row"><input id="qn" class="grow" placeholder="Course"><input id="qt" type="time" value="08:00"></div>
+<div class="chips" id="qd">${D.map(d=>`<button class="chip" onclick="this.classList.toggle('on')">${d}</button>`).join('')}</div><button class="b" onclick="spread()">Spread across days</button></div>
+<details class="card"><summary>Week tree</summary>${D.map(d=>`<div class="tr"><b>${d}</b>${S.tt[d].slice().sort((a,b)=>a.t.localeCompare(b.t)).map(i=>`<div class="lf">${i.t} ${esc(i.n)}</div>`).join('')||'<div class="lf mu">Free</div>'}</div>`).join('')}</details>`}
+function addI(){const n=val('pn').trim();if(!n)return toast('Type what you’re doing first.');S.tt[D[day]].push({id:uid(),t:val('pt')||'09:00',n,r:1});save();render()}
+function rem(id){const i=S.tt[D[day]].find(x=>x.id===id);i.r=i.r?0:1;i.l='';save();render()}
+function del(id){S.tt[D[day]]=S.tt[D[day]].filter(x=>x.id!==id);save();render()}
+function spread(){const n=val('qn').trim(),ds=[...document.querySelectorAll('#qd .on')].map(b=>b.textContent);if(!n||!ds.length)return toast('Add a course and pick at least one day.');ds.forEach(d=>S.tt[d].push({id:uid(),t:val('qt')||'08:00',n,r:1}));save();toast(n+' added to '+ds.length+' days');render()}
+function upl(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{let n=0;String(r.result).split(/\r?\n/).forEach(l=>{const p=l.split(/[,;\t]/).map(x=>x.trim());if(p.length<3)return;const di=D.findIndex(d=>p[1].toLowerCase().startsWith(d.toLowerCase())),m=p[2].match(/(\d{1,2}):(\d{2})/);if(di<0||!m)return;S.tt[D[di]].push({id:uid(),t:m[1].padStart(2,'0')+':'+m[2],n:p[0],r:1});n++});save();toast(n?n+' classes added to your week':'No classes found. Use: Course, Day, Start');render()};r.readAsText(f)}
+
+async function readTT(inp){const f=inp.files[0],set=m=>{if($('#ts'))$('#ts').textContent=m};if(!f)return;let sm=null;try{sm=await claude.use('sample')}catch(e){}
+let ok=false;try{ok=!!(sm&&sm.limits&&(await sm.limits()).images)}catch(e){}
+if(!ok){set('Automatic reading isn’t available in this view. Open the planner from its Claude link, or use the CSV option below.');return}
+set('Reading your timetable. This can take up to a minute…');
+try{const r=await sm.json('This image is a university class timetable. Extract every class slot. Return ONLY a JSON array of objects shaped {"course":string,"day":"Mon"|"Tue"|"Wed"|"Thu"|"Fri"|"Sat"|"Sun","start":"HH:MM" in 24-hour time}. A class lasting several hours is one entry at its start time. A course on several days gets one entry per day. If nothing is readable, return [].',{images:[f],modelTier:'default',cache:false});
+let n=0;(Array.isArray(r)?r:[]).forEach(x=>{const di=D.findIndex(d=>String(x.day).toLowerCase().startsWith(d.toLowerCase())),m=String(x.start).match(/(\d{1,2}):(\d{2})/),nm=String(x.course||'').slice(0,60);if(di<0||!m||!nm)return;const t=m[1].padStart(2,'0')+':'+m[2];if(S.tt[D[di]].some(i=>i.n===nm&&i.t===t))return;S.tt[D[di]].push({id:uid(),t,n:nm,r:1});n++});
+save();toast(n?n+' classes added across your week':'No classes found in that photo. Try a clearer, straight-on picture.');render()}
+catch(e){set(e.code==='not_granted'?'Reading was not allowed. Allow it when asked, or use the CSV option.':e.code==='rate_limited'?'Usage limit reached. Try again later.':e.code==='image_rejected'?'That image couldn’t be used. Try a different photo.':'Couldn’t read it this time. Try again.')}}
+function alarm(){return `<div class="card"><h3>Alarms</h3>${S.al.map(a=>`<div class="item"><b>${a.t}</b><span>${esc(a.n)}</span><button class="ic" aria-label="Delete" onclick="S.al=S.al.filter(x=>x.id!=='${a.id}');save();render()">✕</button></div>`).join('')||'<p class="mu">No alarms yet. They repeat daily.</p>'}
+<div class="row"><input id="at" type="time" value="07:00"><input id="an" class="grow" placeholder="Remind me to…"><button class="b" onclick="addA()">Set</button></div>
+<p class="mu">Alarms ring while the planner is open on your phone or PC.</p><button class="b g" onclick="notif()">Enable notifications</button></div>
+<div class="card"><h3>Push-me alarms</h3><p class="mu">Add what you keep putting off. The planner nags you at your chosen interval until you mark it done.</p>${S.nu.map(u=>`<div class="item"><span>${esc(u.n)}<br><small class="mu">every ${u.m} min</small></span><button class="b g" onclick="S.nu=S.nu.filter(x=>x.id!=='${u.id}');save();render()">Done</button></div>`).join('')}
+<div class="row"><input id="nn" class="grow" placeholder="Task I’m avoiding"><select id="nm"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="60">60 min</option><option value="120">2 hrs</option></select><button class="b" onclick="addN()">Nag me</button></div></div>`}
+function addA(){const n=val('an').trim()||'Alarm';S.al.push({id:uid(),t:val('at')||'07:00',n,l:''});save();render()}
+function addN(){const n=val('nn').trim();if(!n)return toast('Type the task first.');const m=+val('nm');S.nu.push({id:uid(),n,m,nx:Date.now()+m*6e4});save();render()}
+function notif(){try{Notification.requestPermission().then(p=>toast(p==='granted'?'Notifications on':'Notifications blocked in browser settings'))}catch(e){toast('Notifications aren’t supported here. In-app alarms still work.')}}
+
+const CATS=['Food','Transport','School','Fun','Other'];
+function wk(){const d=new Date();d.setDate(d.getDate()-todayI());return ymd(d)}
+function spend(){const w=S.ex.filter(e=>e.d>=wk()),t=w.reduce((a,e)=>a+e.a,0),left=S.bud-t,p=Math.min(100,t/S.bud*100||0);
+return `<div class="card"><h3>This week</h3><div class="big">${N(left)} <small class="mu">left</small></div><div class="bar"><i style="width:${p}%"></i></div><p class="mu">Spent ${N(t)} of weekly budget</p><div class="row"><input id="bu" type="number" inputmode="numeric" value="${S.bud}"><button class="b g" onclick="S.bud=+val('bu')||S.bud;save();render()">Set budget</button></div></div>
+<div class="card"><h3>Add spending</h3><div class="row"><input id="el" class="grow" placeholder="What for?"><input id="ea" type="number" inputmode="numeric" placeholder="₦ amount" style="width:120px"><select id="ec">${CATS.map(c=>`<option>${c}</option>`).join('')}</select><button class="b" onclick="addE()">Add</button></div>
+${S.ex.slice(-12).reverse().map(e=>`<div class="item"><b>${N(e.a)}</b><span>${esc(e.l)} <small class="mu">${e.c} · ${e.d}</small></span><button class="ic" aria-label="Delete" onclick="S.ex=S.ex.filter(x=>x.id!=='${e.id}');save();render()">✕</button></div>`).join('')}</div>`}
+function addE(){const a=+val('ea');if(!a)return toast('Enter an amount.');S.ex.push({id:uid(),l:val('el').trim()||'Spending',a,c:val('ec'),d:ymd()});save();render()}
+function savev(){const t=S.sv.dep.reduce((a,e)=>a+e.a,0),p=Math.min(100,t/S.sv.target*100||0);
+return `<div class="card"><h3>${esc(S.sv.goal)}</h3><div class="big">${N(t)} <small class="mu">of ${N(S.sv.target)}</small></div><div class="bar"><i style="width:${p}%"></i></div><p class="mu">${Math.round(p)}% saved</p>
+<div class="row"><input id="sg" class="grow" value="${esc(S.sv.goal)}"><input id="st" type="number" inputmode="numeric" value="${S.sv.target}" style="width:120px"><button class="b g" onclick="S.sv.goal=val('sg')||S.sv.goal;S.sv.target=+val('st')||S.sv.target;save();render()">Update goal</button></div></div>
+<div class="card"><h3>Add to savings</h3><div class="row"><input id="sa" type="number" inputmode="numeric" placeholder="₦ amount" class="grow"><button class="b" onclick="addS()">Save it</button></div>${S.sv.dep.slice(-8).reverse().map(e=>`<div class="item"><b>${N(e.a)}</b><span class="mu">${e.d}</span><button class="ic" aria-label="Delete" onclick="S.sv.dep=S.sv.dep.filter(x=>x.id!=='${e.id}');save();render()">✕</button></div>`).join('')}</div>`}
+function addS(){const a=+val('sa');if(!a)return toast('Enter an amount.');S.sv.dep.push({id:uid(),a,d:ymd()});save();render()}
+
+function charts(){return `<div class="card"><h3>Spending, last 7 days</h3><canvas id="c1"></canvas></div><div class="card"><h3>Spending by category</h3><canvas id="c2"></canvas></div><div class="card"><h3>Savings progress</h3><canvas id="c3"></canvas></div>`}
+function bars(id,lb,vs){const cv=$('#'+id),w=cv.clientWidth,h=180,r=devicePixelRatio||1;cv.width=w*r;cv.height=h*r;const c=cv.getContext('2d');c.scale(r,r);const m=Math.max(...vs,1),bw=w/lb.length,col=`hsl(${S.hue},92%,68%)`;c.font='11px system-ui';c.textAlign='center';vs.forEach((v,i)=>{const bh=(h-48)*v/m;c.fillStyle=col;c.beginPath();c.rect(i*bw+bw*.22,h-22-bh,bw*.56,bh);c.fill();c.fillStyle='#b9b0d0';c.fillText(lb[i],i*bw+bw/2,h-6);if(v)c.fillText(Math.round(v/100)/10+'k',i*bw+bw/2,h-27-bh)})}
+function drawCharts(){const l=[],v=[];for(let i=6;i>=0;i--){const d=new Date(Date.now()-i*864e5);l.push(D[(d.getDay()+6)%7]);v.push(S.ex.filter(e=>e.d===ymd(d)).reduce((a,e)=>a+e.a,0))}bars('c1',l,v);bars('c2',CATS,CATS.map(c=>S.ex.filter(e=>e.c===c).reduce((a,e)=>a+e.a,0)));
+const cv=$('#c3'),w=cv.clientWidth,r=devicePixelRatio||1;cv.width=w*r;cv.height=180*r;const c=cv.getContext('2d');c.scale(r,r);const t=S.sv.dep.reduce((a,e)=>a+e.a,0),p=Math.min(1,t/S.sv.target||0);c.lineWidth=14;c.strokeStyle=`hsl(${S.hue},30%,20%)`;c.beginPath();c.arc(w/2,90,60,0,7);c.stroke();c.strokeStyle=`hsl(${S.hue},92%,68%)`;c.lineCap='round';c.beginPath();c.arc(w/2,90,60,-Math.PI/2,-Math.PI/2+p*Math.PI*2);c.stroke();c.fillStyle='#f3efff';c.font='bold 22px system-ui';c.textAlign='center';c.fillText(Math.round(p*100)+'%',w/2,98)}
+
+function play(){return `<div class="card"><h3>Orb catch</h3><p class="mu">Tap the orb as many times as you can in 20 seconds. Score <b id="gs">0</b> · Time <b id="gt">20</b> · Best <b>${S.hi}</b></p><div id="arena"><button id="orb" style="display:none" aria-label="Orb" onpointerdown="hit()"></button></div><p class="mu" id="gm">Press start for a short break.</p><button class="b" onclick="gStart()">Start</button></div>`}
+function gStart(){gs=0;gt=20;$('#gs').textContent=0;$('#gt').textContent=20;moveOrb();$('#gm').textContent='Go!';clearInterval(gi);gi=setInterval(()=>{gt--;$('#gt').textContent=gt;if(gt<=0){clearInterval(gi);if(gs>S.hi){S.hi=gs;save()}$('#orb').style.display='none';$('#gm').textContent='Time! You scored '+gs+'. Best: '+S.hi+'. Back to your plan now.'}},1000)}
+function moveOrb(){const o=$('#orb'),b=$('#arena');o.style.display='block';o.style.left=Math.random()*(b.clientWidth-50)+'px';o.style.top=Math.random()*(b.clientHeight-50)+'px'}
+function hit(){if(gt<=0)return;gs++;$('#gs').textContent=gs;moveOrb()}
+
+/* data */
+function dataPanel(){return `<div class="card"><h3>Your data</h3><p class="mu">Everything saves automatically on this device. To move it to another phone or PC, copy a backup and paste it there.</p><div class="row"><button class="b" onclick="cp()">Copy backup</button><button class="b g" onclick="rs()">Restore</button><button class="b g" onclick="rst()">${resetArm?'Tap again to erase':'Reset'}</button></div><textarea id="bk" rows="3" placeholder="Paste a backup here, then tap Restore"></textarea></div>`}
+function cp(){const j=JSON.stringify(S);try{navigator.clipboard.writeText(j).then(()=>toast('Backup copied'),()=>fb(j))}catch(e){fb(j)}}
+function fb(j){const t=$('#bk');t.value=j;t.select();toast('Copy the selected text to keep your backup')}
+function rs(){try{const o=JSON.parse(val('bk'));S=Object.assign(S,o);D.forEach(d=>S.tt[d]=S.tt[d]||[]);save();theme();toast('Data restored');showData=false;render()}catch(e){toast('That backup isn’t valid. Copy it again and paste the full text.')}}
+function rst(){if(!resetArm){resetArm=true;render();return}resetArm=false;try{localStorage.removeItem(K)}catch(e){}S={hue:265,tt:{},al:[],nu:[],ex:[],bud:35000,sv:{goal:'My savings goal',target:50000,dep:[]},hi:0};D.forEach(d=>S.tt[d]=[]);save();theme();showData=false;render()}
+
+const TABS=[['plan','◫','Plan'],['alarm','⏰','Alarms'],['spend','₦','Spend'],['save','◎','Save'],['charts','▮','Charts'],['play','◆','Play']];
+$('#nav').innerHTML=TABS.map(t=>`<button data-t="${t[0]}" onclick="tab='${t[0]}';render()"><i>${t[1]}</i>${t[2]}</button>`).join('');
+function render(){clearInterval(gi);const f={plan,alarm,spend,save:savev,charts,play}[tab];$('#v').innerHTML=(showData?dataPanel():'')+f();document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));if(tab==='charts')drawCharts()}
+theme();quote();render();
+window.addEventListener('resize',()=>{if(tab==='charts')drawCharts()});
+</script></body></html>
